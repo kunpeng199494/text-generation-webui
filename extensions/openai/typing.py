@@ -196,7 +196,7 @@ class LoadLorasRequest(BaseModel):
 
 
 def to_json(obj):
-    return json.dumps(obj.__dict__, indent=4)
+    return json.dumps(obj.__dict__, indent=4, ensure_ascii=False)
 
 
 def to_dict(obj):

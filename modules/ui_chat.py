@@ -101,7 +101,7 @@ def create_chat_settings_ui():
 
             with gr.Column(scale=1):
                 shared.gradio['character_picture'] = gr.Image(label='Character picture', type='pil', interactive=not mu)
-                shared.gradio['your_picture'] = gr.Image(label='Your picture', type='pil', value=Image.open(Path('cache/pfp_me.png')) if Path('cache/pfp_me.png').exists() else None, interactive=not mu)
+                shared.gradio['your_picture'] = gr.Image(label='Your picture', type='pil', value=Image.open(Path('characters/me.png')) if Path('characters/me.png').exists() else None, interactive=not mu)
 
     with gr.Tab('Instruction template'):
         with gr.Row():
@@ -315,7 +315,7 @@ def create_event_handlers():
         lambda: gr.update(visible=True), None, gradio('file_deleter'))
 
     shared.gradio['save_chat_history'].click(
-        lambda x: json.dumps(x, indent=4), gradio('history'), gradio('temporary_text')).then(
+        lambda x: json.dumps(x, indent=4, ensure_ascii=False), gradio('history'), gradio('temporary_text')).then(
         None, gradio('temporary_text', 'character_menu', 'mode'), None, _js=f'(hist, char, mode) => {{{ui.save_files_js}; saveHistory(hist, char, mode)}}')
 
     shared.gradio['Submit character'].click(

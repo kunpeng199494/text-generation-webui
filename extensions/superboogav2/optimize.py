@@ -61,7 +61,7 @@ def _is_optimization_param(val):
 
 # Create a hashable representation of the parameters
 def _get_params_hash(params):
-    params_str = json.dumps(params, sort_keys=True)
+    params_str = json.dumps(params, sort_keys=True, ensure_ascii=False)
     return hashlib.sha256(params_str.encode()).hexdigest()
 
 
@@ -102,7 +102,7 @@ def optimize(collector, progress=gr.Progress()):
         # Cache the score
         scores_cache[params_hash] = score
 
-        result = json.dumps(_convert_np_types(params), indent=4)
+        result = json.dumps(_convert_np_types(params), indent=4, ensure_ascii=False)
         result += f'\nScore: {score}/{max_score}'
 
         logger.debug(result)

@@ -43,7 +43,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(412)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        response = json.dumps({"error": message})
+        response = json.dumps({"error": message}, ensure_ascii=False)
         self.wfile.write(response.encode('utf-8'))
 
 
@@ -51,7 +51,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(404)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        response = json.dumps({"error": "Resource not found"})
+        response = json.dumps({"error": "Resource not found"}, ensure_ascii=False)
         self.wfile.write(response.encode('utf-8'))
 
 
@@ -59,7 +59,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(400)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        response = json.dumps({"error": error_message})
+        response = json.dumps({"error": error_message}, ensure_ascii=False)
         self.wfile.write(response.encode('utf-8'))
         
 
@@ -69,9 +69,9 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
         if isinstance(message, str):
-            response = json.dumps({"message": message})
+            response = json.dumps({"message": message}, ensure_ascii=False)
         else:
-            response = json.dumps(message)
+            response = json.dumps(message, ensure_ascii=False)
 
         self.wfile.write(response.encode('utf-8'))
 

@@ -11,6 +11,7 @@ from modules.logging_colors import logger
 # Model variables
 model = None
 tokenizer = None
+# model_name = '33b_3200b_contrain_180b_36b_mix_sft'
 model_name = 'None'
 is_seq2seq = False
 model_dirty_from_training = False
@@ -36,12 +37,12 @@ settings = {
     'prompt-default': 'QA',
     'prompt-notebook': 'QA',
     'preset': 'simple-1',
-    'max_new_tokens': 512,
+    'max_new_tokens': 256,
     'max_new_tokens_min': 1,
     'max_new_tokens_max': 4096,
     'negative_prompt': '',
     'seed': -1,
-    'truncation_length': 2048,
+    'truncation_length': 4096,
     'truncation_length_min': 0,
     'truncation_length_max': 200000,
     'max_tokens_second': 0,
@@ -53,11 +54,11 @@ settings = {
     'add_bos_token': True,
     'skip_special_tokens': True,
     'stream': True,
-    'character': 'Assistant',
-    'name1': 'You',
+    'character': 'Qiaofeng',
+    'name1': '<USER>',
     'custom_system_message': '',
     'instruction_template_str': "{%- set ns = namespace(found=false) -%}\n{%- for message in messages -%}\n    {%- if message['role'] == 'system' -%}\n        {%- set ns.found = true -%}\n    {%- endif -%}\n{%- endfor -%}\n{%- if not ns.found -%}\n    {{- '' + 'Below is an instruction that describes a task. Write a response that appropriately completes the request.' + '\\n\\n' -}}\n{%- endif %}\n{%- for message in messages %}\n    {%- if message['role'] == 'system' -%}\n        {{- '' + message['content'] + '\\n\\n' -}}\n    {%- else -%}\n        {%- if message['role'] == 'user' -%}\n            {{-'### Instruction:\\n' + message['content'] + '\\n\\n'-}}\n        {%- else -%}\n            {{-'### Response:\\n' + message['content'] + '\\n\\n' -}}\n        {%- endif -%}\n    {%- endif -%}\n{%- endfor -%}\n{%- if add_generation_prompt -%}\n    {{-'### Response:\\n'-}}\n{%- endif -%}",
-    'chat_template_str': "{%- for message in messages %}\n    {%- if message['role'] == 'system' -%}\n        {{- message['content'] + '\\n\\n' -}}\n    {%- else -%}\n        {%- if message['role'] == 'user' -%}\n            {{- name1 + ': ' + message['content'] + '\\n'-}}\n        {%- else -%}\n            {{- name2 + ': ' + message['content'] + '\\n' -}}\n        {%- endif -%}\n    {%- endif -%}\n{%- endfor -%}",
+    'chat_template_str': "{%- for message in messages %}\n    {%- if message['role'] == 'system' -%}\n        {{- message['content'] + '\\n\\n' -}}\n    {%- else -%}\n        {%- if message['role'] == 'user' -%}\n            {{- name1 + '\\n' + message['content'] + '\\n'-}}\n        {%- else -%}\n            {{- name2 + '\\n' + message['content'] + '\\n' -}}\n        {%- endif -%}\n    {%- endif -%}\n{%- endfor -%}",
     'chat-instruct_command': 'Continue the chat dialogue below. Write a single reply for the character "<|character|>".\n\n<|prompt|>',
     'autoload_model': False,
     'gallery-items_per_page': 50,

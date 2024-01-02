@@ -450,7 +450,7 @@ def save_history(history, unique_id, character, mode):
         p.parent.mkdir(parents=True)
 
     with open(p, 'w', encoding='utf-8') as f:
-        f.write(json.dumps(history, indent=4))
+        f.write(json.dumps(history, indent=4, ensure_ascii=False))
 
 
 def rename_history(old_id, new_id, character, mode):
@@ -698,7 +698,7 @@ def build_pygmalion_style_context(data):
 
 def upload_tavern_character(img, _json):
     _json = {'char_name': _json['name'], 'char_persona': _json['description'], 'char_greeting': _json['first_mes'], 'example_dialogue': _json['mes_example'], 'world_scenario': _json['scenario']}
-    return upload_character(json.dumps(_json), img, tavern=True)
+    return upload_character(json.dumps(_json, ensure_ascii=False), img, tavern=True)
 
 
 def check_tavern_character(img):
@@ -719,12 +719,12 @@ def upload_your_profile_picture(img):
         cache_folder.mkdir()
 
     if img is None:
-        if Path("cache/pfp_me.png").exists():
-            Path("cache/pfp_me.png").unlink()
+        if Path("characters/me.png").exists():
+            Path("characters/me.png").unlink()
     else:
         img = make_thumbnail(img)
-        img.save(Path('cache/pfp_me.png'))
-        logger.info('Profile picture saved to "cache/pfp_me.png"')
+        img.save(Path('characters/me.png'))
+        logger.info('Profile picture saved to "characters/me.png"')
 
 
 def generate_character_yaml(name, greeting, context):
@@ -735,7 +735,7 @@ def generate_character_yaml(name, greeting, context):
     }
 
     data = {k: v for k, v in data.items() if v}  # Strip falsy
-    return yaml.dump(data, sort_keys=False, width=float("inf"))
+    return yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False, width=float("inf"))
 
 
 def generate_instruction_template_yaml(instruction_template):
@@ -750,7 +750,8 @@ def save_character(name, greeting, context, picture, filename):
     if filename == "":
         logger.error("The filename is empty, so the character will not be saved.")
         return
-
+    print(greeting)
+    print(context)
     data = generate_character_yaml(name, greeting, context)
     filepath = Path(f'characters/{filename}.yaml')
     save_file(filepath, data)

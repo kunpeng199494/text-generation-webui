@@ -106,7 +106,7 @@ async def openai_completions(request: Request, request_data: CompletionRequest):
                     if disconnected:
                         break
 
-                    yield {"data": json.dumps(resp)}
+                    yield {"data": json.dumps(resp, ensure_ascii=False)}
 
         return EventSourceResponse(generator())  # SSE streaming
 
@@ -129,7 +129,7 @@ async def openai_chat_completions(request: Request, request_data: ChatCompletion
                     if disconnected:
                         break
 
-                    yield {"data": json.dumps(resp)}
+                    yield {"data": json.dumps(resp, ensure_ascii=False)}
 
         return EventSourceResponse(generator())  # SSE streaming
 
