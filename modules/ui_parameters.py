@@ -7,7 +7,9 @@ from modules.utils import gradio
 
 
 def create_ui(default_preset):
-    mu = shared.args.multi_user
+    # mu = shared.args.multi_user
+    # 为了保留交互功能，这里手动写死 False
+    mu = False
     generate_params = presets.load_preset(default_preset)
     with gr.Tab("Parameters", elem_id="parameters"):
         with gr.Tab("Generation"):

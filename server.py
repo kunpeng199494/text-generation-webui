@@ -69,7 +69,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 
-def create_interface():
+def create_interface_source():
 
     title = 'Text generation web UI'
 
@@ -143,6 +143,109 @@ def create_interface():
         ui_file_saving.create_event_handlers()
         ui_parameters.create_event_handlers()
         ui_model_menu.create_event_handlers()
+
+        # Interface launch events
+        if shared.settings['dark_theme']:
+            shared.gradio['interface'].load(lambda: None, None, None, _js="() => document.getElementsByTagName('body')[0].classList.add('dark')")
+
+        shared.gradio['interface'].load(lambda: None, None, None, _js=f"() => {{{js}}}")
+        shared.gradio['interface'].load(None, gradio('show_controls'), None, _js=f'(x) => {{{ui.show_controls_js}; toggle_controls(x)}}')
+        shared.gradio['interface'].load(partial(ui.apply_interface_values, {}, use_persistent=True), None, gradio(ui.list_interface_input_elements()), show_progress=False)
+        shared.gradio['interface'].load(chat.redraw_html, gradio(ui_chat.reload_arr), gradio('display'))
+
+        extensions_module.create_extensions_tabs()  # Extensions tabs
+        extensions_module.create_extensions_block()  # Extensions block
+
+    # Launch the interface
+    shared.gradio['interface'].queue(concurrency_count=64)
+    with OpenMonkeyPatch():
+        shared.gradio['interface'].launch(
+            prevent_thread_lock=True,
+            share=shared.args.share,
+            server_name='0.0.0.0',
+            server_port=shared.args.listen_port,
+            inbrowser=shared.args.auto_launch,
+            auth=auth or None,
+            ssl_verify=False if (shared.args.ssl_keyfile or shared.args.ssl_certfile) else True,
+            ssl_keyfile=shared.args.ssl_keyfile,
+            ssl_certfile=shared.args.ssl_certfile
+        )
+
+
+def create_interface_new():
+
+    title = 'Text generation web UI'
+
+    # Password authentication
+    auth = []
+    if shared.args.gradio_auth:
+        auth.extend(x.strip() for x in shared.args.gradio_auth.strip('"').replace('\n', '').split(',') if x.strip())
+    if shared.args.gradio_auth_path:
+        with open(shared.args.gradio_auth_path, 'r', encoding="utf8") as file:
+            auth.extend(x.strip() for line in file for x in line.split(',') if x.strip())
+    auth = [tuple(cred.split(':')) for cred in auth]
+
+    # Import the extensions and execute their setup() functions
+    if shared.args.extensions is not None and len(shared.args.extensions) > 0:
+        extensions_module.load_extensions()
+
+    # Force some events to be triggered on page load
+    shared.persistent_interface_state.update({
+        'loader': shared.args.loader or 'Transformers',
+        'mode': shared.settings['mode'],
+        'character_menu': shared.args.character or shared.settings['character'],
+        'instruction_template_str': shared.settings['instruction_template_str'],
+        'prompt_menu-default': shared.settings['prompt-default'],
+        'prompt_menu-notebook': shared.settings['prompt-notebook'],
+        'filter_by_loader': shared.args.loader or 'All'
+    })
+
+    if Path("cache/pfp_character.png").exists():
+        Path("cache/pfp_character.png").unlink()
+
+    # css/js strings
+    css = ui.css
+    js = ui.js
+    css += apply_extensions('css')
+    js += apply_extensions('js')
+
+    # Interface state elements
+    shared.input_elements = ui.list_interface_input_elements()
+
+    with gr.Blocks(css=css, analytics_enabled=False, title=title, theme=ui.theme) as shared.gradio['interface']:
+
+        # Interface state
+        shared.gradio['interface_state'] = gr.State({k: None for k in shared.input_elements})
+
+        # Audio notification
+        if Path("notification.mp3").exists():
+            shared.gradio['audio_notification'] = gr.Audio(interactive=False, value="notification.mp3", elem_id="audio_notification", visible=False)
+
+        # Floating menus for saving/deleting files
+        ui_file_saving.create_ui()
+
+        # Temporary clipboard for saving files
+        shared.gradio['temporary_text'] = gr.Textbox(visible=False)
+
+        # Text Generation tab
+        ui_chat.create_ui()
+        # ui_default.create_ui()
+        # ui_notebook.create_ui()
+
+        ui_parameters.create_ui(shared.settings['preset'])  # Parameters tab
+        # ui_model_menu.create_ui()  # Model tab
+        # training.create_ui()  # Training tab
+        # ui_session.create_ui()  # Session tab
+
+        # Generation events
+        ui_chat.create_event_handlers()
+        # ui_default.create_event_handlers()
+        # ui_notebook.create_event_handlers()
+
+        # Other events
+        ui_file_saving.create_event_handlers()
+        ui_parameters.create_event_handlers()
+        # ui_model_menu.create_event_handlers()
 
         # Interface launch events
         if shared.settings['dark_theme']:
@@ -251,7 +354,7 @@ if __name__ == "__main__":
             extensions_module.load_extensions()
     else:
         # Launch the web UI
-        create_interface()
+        create_interface_new()
         while True:
             time.sleep(0.5)
             if shared.need_restart:
@@ -259,4 +362,4 @@ if __name__ == "__main__":
                 time.sleep(0.5)
                 shared.gradio['interface'].close()
                 time.sleep(0.5)
-                create_interface()
+                create_interface_new()

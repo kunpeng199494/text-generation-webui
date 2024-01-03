@@ -11,8 +11,10 @@ from modules.logging_colors import logger
 # Model variables
 model = None
 tokenizer = None
+model_name = '33b_3200b_contrain_180b_36b_mix_sft_240104'
 # model_name = '33b_3200b_contrain_180b_36b_mix_sft'
-model_name = 'None'
+# model_name = '2b_2600b'
+# model_name = 'None'
 is_seq2seq = False
 model_dirty_from_training = False
 lora_names = []
@@ -36,7 +38,7 @@ settings = {
     'chat_style': 'cai-chat',
     'prompt-default': 'QA',
     'prompt-notebook': 'QA',
-    'preset': 'simple-1',
+    'preset': 'Debug-deterministic',
     'max_new_tokens': 256,
     'max_new_tokens_min': 1,
     'max_new_tokens_max': 4096,

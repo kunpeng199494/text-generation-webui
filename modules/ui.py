@@ -168,16 +168,16 @@ def list_interface_input_elements():
     ]
 
     # Notebook/default elements
-    elements += [
-        'textbox-notebook',
-        'textbox-default',
-        'output_textbox',
-        'prompt_menu-default',
-        'prompt_menu-notebook',
-    ]
+    # elements += [
+    #     'textbox-notebook',
+    #     'textbox-default',
+    #     'output_textbox',
+    #     'prompt_menu-default',
+    #     'prompt_menu-notebook',
+    # ]
 
     # Model elements
-    elements += list_model_elements()
+    # elements += list_model_elements()
 
     return elements
 
